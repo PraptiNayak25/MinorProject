@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard - Capsules</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-6">
+  <h1 class="text-3xl font-bold mb-6">Admin Dashboard - Capsules</h1>
+  <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden mb-8">
+    <thead>
+      <tr class="bg-gray-700 text-left">
+        <th class="py-3 px-4">Capsule ID</th>
+        <th class="py-3 px-4">User Email</th>
+        <th class="py-3 px-4">Created Date</th>
+        <th class="py-3 px-4">Release Date</th>
+        <th class="py-3 px-4">Duration</th>
+        <th class="py-3 px-4">Data Size</th>
+        <th class="py-3 px-4">Document Type</th>
+        <th class="py-3 px-4">Nominee Relation</th>
+      </tr>
+    </thead>
+    <tbody id="capsuleTableBody" class="divide-y divide-gray-700">
+      <!-- Capsule rows will be inserted here -->
+    </tbody>
+  </table>
+
+  <h2 class="text-2xl font-bold mb-4">Registered Users</h2>
+  <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+    <thead>
+      <tr class="bg-gray-700 text-left">
+        <th class="py-3 px-4">User ID</th>
+        <th class="py-3 px-4">First Name</th>
+        <th class="py-3 px-4">Last Name</th>
+        <th class="py-3 px-4">Email</th>
+        <th class="py-3 px-4">Phone</th>
+        <th class="py-3 px-4">Address</th>
+        <th class="py-3 px-4">Created At</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody" class="divide-y divide-gray-700">
+      <!-- User rows will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    async function fetchCapsules() {
+      try {
+        const response = await fetch('/admin/capsules');
+        if (!response.ok) {
+          throw new Error('Failed to fetch capsules');
+        }
+        const capsules = await response.json();
+        const tbody = document.getElementById('capsuleTableBody');
+        tbody.innerHTML = '';
+        capsules.forEach(capsule => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-700';
+          tr.innerHTML = `
+            <td class="py-2 px-4">${capsule._id}</td>
+            <td class="py-2 px-4">${capsule.nomineeEmail || ''}</td>
+            <td class="py-2 px-4">${new Date(capsule.createdAt).toLocaleString()}</td>
+            <td class="py-2 px-4">${new Date(capsule.releaseDate).toLocaleDateString()}</td>
+            <td class="py-2 px-4">${capsule.duration || ''}</td>
+            <td class="py-2 px-4">${capsule.dataSize || ''}</td>
+            <td class="py-2 px-4">${capsule.documentType || ''}</td>
+            <td class="py-2 px-4">${capsule.nomineeRelation || ''}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        alert('Error loading capsules: ' + error.message);
+      }
+    }
+
+    async function fetchUsers() {
+      try {
+        const response = await fetch('/admin/users');
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        const users = await response.json();
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '';
+        users.forEach(user => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-700';
+          tr.innerHTML = `
+            <td class="py-2 px-4">${user._id}</td>
+            <td class="py-2 px-4">${user.firstName || ''}</td>
+            <td class="py-2 px-4">${user.lastName || ''}</td>
+            <td class="py-2 px-4">${user.email || ''}</td>
+            <td class="py-2 px-4">${user.phone || ''}</td>
+            <td class="py-2 px-4">${user.address || ''}</td>
+            <td class="py-2 px-4">${new Date(user.createdAt).toLocaleString()}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        alert('Error loading users: ' + error.message);
+      }
+    }
+
+    // Fetch capsules and users on page load
+    fetchCapsules();
+    fetchUsers();
+  </script>
+</body>
+</html>
