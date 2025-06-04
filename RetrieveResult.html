@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Retrieve Capsule Content</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&amp;display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background: #f9f9f9;
+      color: #333;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .retrieved-image {
+      max-width: 100%;
+      height: auto;
+      margin-top: 8px;
+      border-radius: 4px;
+      box-shadow: none;
+      display: block;
+      image-rendering: auto;
+    }
+    a.download-link {
+      color: #007acc;
+      text-decoration: underline;
+      margin-top: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="text-4xl mb-6">Retrieved Capsule Content</h1>
+  <div id="result"></div>
+
+  <script>
+    // Parse query parameters for pin and email
+    const urlParams = new URLSearchParams(window.location.search);
+    const pin = urlParams.get('pin') || '';
+    const email = urlParams.get('email') || '';
+
+    if (!pin && !email) {
+      document.getElementById('result').textContent = 'No PIN or Email provided for retrieval.';
+    } else {
+      const formData = new URLSearchParams();
+      if (pin) formData.append('pin', pin);
+      if (email) formData.append('email', email);
+
+fetch('http://localhost:7004/submit-retrieve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString(),
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => { throw new Error(text); });
+        }
+        return response.json();
+      })
+      .then(data => {
+        const resultDiv = document.getElementById('result');
+        if (Array.isArray(data) && data.length > 0) {
+          let html = '<ul>';
+          data.forEach(capsule => {
+const fileUrl = `http://localhost:7004/uploads/${capsule.filePath}`;
+
+            function formatTimeRemaining(ms) {
+              if (ms <= 0) return 'Released';
+              const totalSeconds = Math.floor(ms / 1000);
+              const days = Math.floor(totalSeconds / (3600 * 24));
+              const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+              const minutes = Math.floor((totalSeconds % 3600) / 60);
+              const seconds = totalSeconds % 60;
+              return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+
+            const timeRemainingStr = formatTimeRemaining(capsule.timeRemainingMs);
+
+            html += `<li><strong>Duration:</strong> ${capsule.duration}, <strong>Data Size:</strong> ${capsule.dataSize}, <strong>Document Type:</strong> ${capsule.documentType}, <strong>Nominee Relation:</strong> ${capsule.nomineeRelation}, <strong>Release Date:</strong> ${new Date(capsule.releaseDate).toLocaleDateString()}, <strong>Time Remaining:</strong> ${timeRemainingStr}<br/>`;
+
+            if (capsule.documentType === 'image') {
+              html += `<img src="${fileUrl}" alt="Image content" class="retrieved-image" onerror="this.style.display='none'; alert('Failed to load image.');" />`;
+            } else if (capsule.documentType === 'pdf') {
+              html += `<embed src="${fileUrl}" type="application/pdf" width="100%" height="600px" style="margin-top: 8px;"/>`;
+            } else if (capsule.documentType === 'text') {
+              html += `<iframe src="${fileUrl}" style="width:100%; height:400px; border:none; margin-top: 8px;"></iframe>`;
+            } else {
+              html += `<a href="${fileUrl}" download class="download-link">Download File</a>`;
+            }
+            html += `</li>`;
+          });
+          html += '</ul>';
+          resultDiv.innerHTML = html;
+        } else {
+          resultDiv.textContent = 'No capsules found.';
+        }
+      })
+      .catch(error => {
+        alert('Retrieve failed: ' + error.message);
+      });
+    }
+  </script>
+</body>
+</html>
