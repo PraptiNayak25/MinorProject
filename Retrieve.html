@@ -1,0 +1,136 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Retrieve Page
+  </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&amp;display=swap" rel="stylesheet"/>
+  <style>
+   body {
+      font-family: 'Times New Roman', Times, serif;
+      background: #1e1b4b; /* dark blue-purple background */
+      color: #d8d8ff; /* light purple text */
+    }
+   /* Override Tailwind's bg-black and text-white */
+   .bg-black {
+     background-color: #1e1b4b !important;
+   }
+   .text-white {
+     color: #d8d8ff !important;
+   }
+   /* Border color for inputs and buttons */
+   .border-white {
+     border-color: #a78bfa !important; /* purple border */
+   }
+   .border-gray-600 {
+     border-color: #6b46c1 !important; /* darker purple */
+   }
+   /* Placeholder color */
+   ::placeholder {
+     color: #b3a0ff !important;
+     opacity: 1;
+   }
+   /* Button background */
+   .bg-white {
+     background-color: #7c3aed !important; /* purple */
+     color: white !important;
+   }
+   /* Button hover */
+   button:hover.bg-white {
+     background-color: #5a2abf !important;
+     color: #d8d8ff !important;
+   }
+   /* Link hover underline color */
+   nav a:hover {
+     text-decoration-color: #a78bfa !important;
+   }
+  </style>
+  <script>
+    function handleSubmit(event) {
+      event.preventDefault();
+      const pinInput = document.getElementById('pinInput').value;
+      // Open new page with pin as query param
+      window.open('https://example.com/retrieve?pin=' + encodeURIComponent(pinInput), '_blank', 'noopener');
+    }
+  </script>
+ </head>
+ <body class="min-h-screen flex flex-col">
+  <header class="flex items-center justify-between px-6 py-4 max-w-[1200px] mx-auto w-full">
+   <div class="flex items-center space-x-6">
+    <img alt="logo" class="w-10 h-10" height="40" src="WhatsApp_Image_2025-04-08_at_16.44.18_111e45a5.png" width="40" style=""/>
+   </div>
+   <div class="flex items-center space-x-6">
+    <button aria-label="Create Capsule" class="border border-white rounded-md px-5 py-2 text-purple-200 text-sm flex items-center gap-1 hover:bg-white hover:text-purple-900 transition" onclick="window.open('login(2).html', '_blank', 'noopener')" style="">
+     Create Capsule
+     <i class="fas fa-arrow-up-right"></i>
+    </button>
+    <nav class="hidden md:flex space-x-8 text-sm font-normal text-purple-200">
+     <a class="hover:underline" href="HOME.html" target="_blank" rel="noopener noreferrer" style="">
+      Home
+     </a>
+     <a class="hover:underline" href="HOME.html" target="_blank" rel="noopener noreferrer">
+      About
+     </a>
+     <a class="hover:underline" href="contact.html" target="_blank" rel="noopener noreferrer">
+      Contact
+     </a>
+    </nav>
+   </div>
+  </header>
+  <main class="flex flex-1 max-w-[1200px] mx-auto w-full px-6 py-12 md:py-20 md:flex-row flex-col items-start md:items-center gap-12">
+   <section class="flex flex-col max-w-lg w-full">
+    <h1 class="text-5xl font-normal mb-2 text-purple-200" style="">
+     Retrieve Content
+    </h1>
+    <p class="text-purple-300 text-xs mb-8" style="">
+     security without liberty is called prison
+    </p>
+    <form id="retrieveForm" class="flex flex-col space-y-4">
+     <input name="pin" id="pinInput" class="bg-transparent border border-gray-600 rounded-md px-4 py-2 text-purple-300 placeholder-purple-400 focus:outline-none focus:border-white transition" placeholder="Enter The PIN" type="password"/>
+     <input name="email" id="emailInput" class="bg-transparent border border-gray-600 rounded-md px-4 py-2 text-purple-300 placeholder-purple-400 focus:outline-none focus:border-white transition" placeholder="Enter The User/Nominee Email id" type="email"/>
+     <button class="bg-white rounded-md px-8 py-3 w-max flex items-center gap-1 font-normal text-sm" type="submit" style="">
+      Retrieve
+      <i class="fas fa-arrow-up-right text-[10px]"></i>
+     </button>
+    </form>
+    <div id="result" class="mt-4 text-purple-200"></div>
+   </section>
+   <section class="w-full max-w-xs md:max-w-sm">
+    <img alt="3D render of a golden key inserted into a transparent glass panel shaped like a keyhole on dark blue-purple background" class="w-full h-auto object-contain" height="300" src="https://storage.googleapis.com/a1aa/image/eee9a8ff-1921-46d7-c21d-b5e6de95b001.jpg" width="300"/>
+   </section>
+  </main>
+  <script>
+    document.getElementById('retrieveForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const pin = document.getElementById('pinInput').value.trim();
+      const email = document.getElementById('emailInput').value.trim();
+      if (!pin && !email) {
+        alert('Please enter either PIN or Nominee Email to retrieve content.');
+        return;
+      }
+      // Open RetrieveResult.html with query parameters
+      let url = 'RetrieveResult.html?';
+      if (pin) url += 'pin=' + encodeURIComponent(pin) + '&';
+      if (email) url += 'email=' + encodeURIComponent(email);
+      window.open(url, '_blank', 'noopener');
+    });
+  </script>
+  <style>
+    .retrieved-image {
+      max-width: 100%;
+      height: auto;
+      margin-top: 8px;
+      border: 2px solid #a78bfa;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+      display: block;
+      image-rendering: auto;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+    }
+  </style>
+ </body>
+</html>
