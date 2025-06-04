@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Capsule</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="styles.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <style>
+    .glow-text {
+      text-shadow:
+        0 0 2px rgba(255, 255, 255, 0.3),
+        0 0 5px rgba(255, 255, 255, 0.25),
+        0 0 10px rgba(255, 255, 255, 0.2),
+        0 0 20px rgba(255, 255, 255, 0.15);
+    }
+    .glow-border {
+      box-shadow:
+        0 0 2px rgba(255, 255, 255, 0.3),
+        0 0 5px rgba(255, 255, 255, 0.25),
+        0 0 10px rgba(255, 255, 255, 0.2);
+    }
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      overflow: hidden;
+      filter: brightness(0.3);
+    }
+    .background-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(12px);
+      transform: scale(1.1);
+    }
+    select,
+    input[type="text"],
+    input[type="email"],
+    input[type="date"] {
+      background-color: #000;
+      color: #e5e7eb;
+      border-bottom: 1px solid #4b5563;
+      padding-bottom: 0.25rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      outline: none;
+    }
+    select:focus,
+    input:focus {
+      border-color: #9ca3af;
+      box-shadow: 0 0 5px #9ca3af;
+    }
+    input[name="release-date"] {
+      border-bottom-color: #3b82f6;
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.7);
+    }
+    input[name="release-date"]:focus {
+      border-bottom-color: #2563eb;
+      box-shadow: 0 0 8px rgba(37, 99, 235, 0.9);
+    }
+  </style>
+</head>
+<body class="bg-black min-h-screen flex flex-col items-center justify-start font-sans text-gray-200">
+  <!-- Background image -->
+  <div class="background-image" aria-hidden="true">
+    <img src="bgimage.jpg" alt="Background" />
+  </div>
+
+  <!-- Back to website button -->
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-black bg-opacity-80 rounded-full w-32 h-12 flex items-center justify-center cursor-pointer glow-border">
+    <button onclick="window.open('HOME.html', '_blank')" class="text-white font-bold text-sm w-full h-full rounded-full hover:text-gray-300 transition">
+      Back To Website
+    </button>
+  </div>
+
+  <!-- Capsule form -->
+  <form id="capsuleForm" action="/submit-capsule" method="POST" enctype="multipart/form-data"
+        class="bg-black bg-opacity-90 mt-20 w-full max-w-md rounded-lg flex flex-col items-center py-8 px-12 glow-border">
+    <img src="WhatsApp_Image_2025-04-08_at_16.44.18_111e45a5.png" alt="Logo" width="100" height="100" class="mb-4" />
+    <h2 class="text-xl font-semibold mb-6 glow-text">Let's Create Capsule</h2>
+
+    <select id="durationSelect" name="duration" required class="glow-border mb-4">
+      <option disabled selected value="">Select Duration</option>
+      <option value="1">1 year</option>
+      <option value="2">2 years</option>
+      <option value="5">5 years</option>
+    </select>
+
+    <select name="dataSize" required class="glow-border mb-4">
+      <option disabled selected value="">Select Data Size</option>
+      <option value="500 mb">500 MB</option>
+      <option value="1 GB">1 GB</option>
+      <option value="2 GB">2 GB</option>
+    </select>
+
+    <select name="documentType" required class="glow-border mb-6">
+      <option disabled selected value="">Select Document Type</option>
+      <option value="audio">Audio</option>
+      <option value="text">Text</option>
+      <option value="ppt">PPT</option>
+      <option value="image">Image</option>
+      <option value="pdf">PDF</option>
+      <option value="doc">Doc</option>
+    </select>
+
+    <input name="nominee-relation" type="text" placeholder="Nominee Relation" required />
+    <input name="nominee-email" type="email" placeholder="Nominee Email-ID" required />
+    <input id="releaseDate" name="release-date" type="date" placeholder="Release Date" readonly required />
+
+    <label for="file-upload" class="w-full text-center text-white border border-gray-600 rounded-md px-4 py-2 mb-6 cursor-pointer glow-border hover:bg-gray-700">
+      Upload File
+    </label>
+    <input id="file-upload" name="file-upload" type="file" class="hidden" required />
+
+    <input type="hidden" id="generatedPin" name="pin" value="" />
+    <input type="hidden" id="userEmail" name="email" value="" />
+
+    <button type="submit" class="bg-gray-700 hover:bg-gray-600 text-white rounded-full px-8 py-2 font-semibold text-sm glow-border">
+      Submit
+    </button>
+  </form>
+
+  <script>
+    const durationSelect = document.getElementById('durationSelect');
+    const releaseDateInput = document.getElementById('releaseDate');
+    const capsuleForm = document.getElementById('capsuleForm');
+    const generatedPinInput = document.getElementById('generatedPin');
+    const fileInput = document.getElementById('file-upload');
+
+    // Auto calculate release date
+    durationSelect.addEventListener('change', () => {
+      const now = new Date();
+      const years = parseInt(durationSelect.value);
+      now.setFullYear(now.getFullYear() + years);
+      releaseDateInput.value = now.toISOString().split('T')[0];
+    });
+
+    // Notify file selected
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        alert(`File "${fileInput.files[0].name}" selected.`);
+      }
+    });
+
+    function generatePin() {
+      return Date.now().toString().slice(-6) + Math.floor(Math.random() * 900 + 100).toString();
+    }
+
+    // Handle form submission
+  capsuleForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      // Check if userEmail exists in localStorage
+      const storedUserEmail = localStorage.getItem('email');
+      if (!storedUserEmail) {
+        alert('User email not found. Please log in before creating a capsule.');
+        return;
+      }
+
+      const pin = generatePin();
+      generatedPinInput.value = pin;
+
+      // Set userEmail from localStorage to hidden input
+      const userEmailInput = document.getElementById('userEmail');
+      userEmailInput.value = storedUserEmail;
+
+      const formData = new FormData(capsuleForm);
+
+      try {
+const response = await fetch('http://localhost:7004/submit-capsule', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.text();
+
+        if (response.ok) {
+          alert('Capsule created successfully! Your PIN is: ' + pin);
+        } else {
+          alert('Error from server: ' + result);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to submit capsule: ' + error.message);
+      }
+    });
+  </script>
+
+  <div id="capsuleList" class="mt-8 w-full max-w-md bg-black bg-opacity-90 rounded-lg p-4 glow-border overflow-auto max-h-64">
+    <h3 class="text-lg font-semibold mb-4 glow-text">Your Capsules</h3>
+    <ul id="capsuleItems" class="list-disc list-inside text-sm"></ul>
+  </div>
+
+  <script>
+    async function fetchCapsules() {
+      try {
+        // Assuming user email is stored in localStorage after login, adjust as needed
+        const userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) return;
+
+        const formData = new URLSearchParams();
+        formData.append('email', userEmail);
+
+const response = await fetch('http://localhost:7004/submit-retrieve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString(),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch capsules');
+        }
+
+        const capsules = await response.json();
+        const capsuleItems = document.getElementById('capsuleItems');
+        capsuleItems.innerHTML = '';
+
+        capsules.forEach(capsule => {
+          const li = document.createElement('li');
+          li.textContent = `Duration: ${capsule.duration}, Data Size: ${capsule.dataSize}, Document Type: ${capsule.documentType}, Nominee Relation: ${capsule.nomineeRelation}, Release Date: ${new Date(capsule.releaseDate).toLocaleDateString()}`;
+          capsuleItems.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error fetching capsules:', error);
+      }
+    }
+
+    // Fetch capsules on page load
+    fetchCapsules();
+  </script>
+</body>
+</html>
+
